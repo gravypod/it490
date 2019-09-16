@@ -1,0 +1,40 @@
+version: "2.2"
+services:
+  # Reverse Proxy for Nginx
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+#    environment:
+#      DEFAULT_HOST: ${FRONTENDVISUALSEARCH_HOSTNAME}
+
+  # Rabbit MQ Server
+  rabbitmq:
+    image: it490/rabbitmq
+    build: services/rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    environment:
+      VIRTUAL_HOST: rabbitmq.it490.localhost
+      VIRTUAL_PORT: 15672
+
+  gateway:
+    image: it490/gateway
+    build: services/gateway
+    restart: on-failure
+
+  example:
+    image: it490/example
+    build: services/example
+    restart: on-failure
+
+volumes:
+  rabbitmq:
+
+
