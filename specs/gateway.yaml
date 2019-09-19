@@ -1,0 +1,411 @@
+swagger: '2.0'
+info:
+  description: 'Endpoint definitions for the Any Team game backend.'
+  version: '0.0.1'
+  title: 'Any Team Backend'
+host: 'gateway.it490.localhost'
+paths:
+  /logins:
+    post:
+      summary: Login to an account
+      operationId: login
+      description: >
+        Login to an account
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      responses:
+        200:
+          description: >
+            Login to this account was successful. Returned data is a JSON Web Token (JWT) which must be sent
+            as a Bearer token to all further requests.
+          schema:
+            type: string
+
+  /players:
+    post:
+      summary: Create a player
+      operationId: addPlayer
+      description: >
+        Create a player for an external user. Store credentials into DB. Hash, and do not store a plain text
+        version of, the users password.
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/PlayerCreation'
+      responses:
+        200:
+          description: >
+            Player was successfully created.
+          schema:
+            $ref: '#/definitions/Player'
+
+  /players/{id}:
+    parameters:
+      - in: path
+        name: id
+        type: string
+        description: Player ID.
+        required: true
+    get:
+      summary: Get a copy of a player object
+      operationId: getPlayer
+      responses:
+        200:
+          description: Correctly retrived the player
+          schema:
+            $ref: '#/definitions/Player'
+    put:
+      summary: Update properties of the player
+      operationId: updatePlayer
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Player'
+      description: >
+        Send patches to parts of the player object. Apply those patches to the object. Using this endpoint
+        you can update a player's level, attributes, health, and roomId. This can not be used to change id
+        or inventoryId.
+      responses:
+        200:
+          description: Updates to the player object worked.
+          schema:
+            $ref: '#/definitions/Player'
+
+  /inventories/{id}:
+    parameters:
+      - in: path
+        name: id
+        type: string
+        description: Inventory ID.
+        required: true
+    put:
+      summary: Update a player's inventory
+      operationId: updateInventory
+      description: >
+        Update the content's of a players inventory. It is possible to override the itemStacks property.
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Inventory'
+      responses:
+        200:
+          description: Inventory was updated
+          schema:
+            $ref: '#/definitions/Inventory'
+
+    get:
+      summary: Get a player's inventory
+      operationId: getInventory
+      responses:
+        200:
+          description: Correctly retrived the player's inventory
+          schema:
+            $ref: '#/definitions/Inventory'
+
+  /rooms:
+    parameters:
+      - in: path
+        name: id
+        type: string
+        description: Room ID.
+        required: true
+    post:
+      summary: Create Room
+      operationId: createRoom
+      description: >
+        Create a new room for this player
+      responses:
+        200:
+          description: Randomly generated and saved a room for the player.
+          schema:
+            $ref: '#/definitions/Room'
+    get:
+      summary: List Rooms
+      operationId: listRooms
+      description: List all rooms owned by this player
+      parameters:
+        - in: query
+          type: integer
+          name: pageSize
+          default: 10
+          required: false
+        - in: query
+          type: string
+          name: afterRoom
+          required: false
+          description: Only list rooms created after this room. Usefull for pagination
+      responses:
+        200:
+          description: Listed all rooms successuflly.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Room'
+
+  /rooms/{id}:
+    parameters:
+      - in: path
+        name: id
+        type: string
+        description: Room ID.
+        required: true
+    put:
+      summary: Update a player's room
+      operationId: updateRoom
+      description: >
+        Update the content's of a players room. It is possible to update the itemStacks property using this.
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Room'
+      responses:
+        200:
+          description: Update a room
+          schema:
+            $ref: '#/definitions/Room'
+
+    get:
+      summary: Get a room owned by the player
+      operationId: getRoom
+      responses:
+        200:
+          description: Correctly retrived a room owned by the player
+          schema:
+            $ref: '#/definitions/Room'
+
+  /villain-templates/{id}:
+    parameters:
+      - in: path
+        name: id
+        type: string
+        description: ID of the villain template
+        required: true
+    get:
+      summary: Obtain a template for a villain
+      operationId: getVillainTemplate
+      responses:
+        200:
+          description: Found the Villain
+          schema:
+            $ref: '#/definitions/VillainTemplate'
+
+
+
+definitions:
+
+  Item:
+    type: string
+    enum:
+      - potion # TODO: Reggie should fill in the enum of item types we want to support.
+
+  ItemStack:
+    type: object
+    description: A pile of a single item grouped together
+    properties:
+      item:
+        $ref: '#/definitions/Item'
+      quantity:
+        type: integer
+
+  Attribute:
+    type: string
+    enum:
+      - attribute-1 # TODO: Reggie should fill in the enum of attributes we want to support
+
+  Ability:
+    type: string
+    enum:
+      - ability-1 # TODO: Reggie should fill in the enum of attributes we want to support
+
+
+  Stats:
+    type: object
+    description: High level overview of an entity's stats.
+    properties:
+      abilities:
+        type: array
+        items:
+          $ref: '#/definitions/Ability'
+
+      attributes:
+        type: array
+        items:
+          $ref: '#/definitions/Attribute'
+
+      level:
+        type: integer
+        minimum: 0
+        maximum: 100
+
+
+  Tile:
+    type: object
+    description: A location of a tile. A quantized point locked to an axis aligned grid.
+    required:
+      - tileX
+      - tileY
+      - type
+    properties:
+      # 100x100 tile world space
+      tileX:
+        type: integer
+        minimum: 0
+        maximum: 100
+      tileY:
+        type: integer
+        minimum: 0
+        maximum: 100
+      type:
+        type: string
+        enum:
+          - floor
+          - wall
+
+  Location:
+    type: object
+    description: A space within the world. Not tile aligned
+    properties:
+      x:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 6400 # TileXSize * TilesX
+      y:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 6400 # TileYSize * TilesY
+
+  VillainTemplate:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      faceImageUrl:
+        type: string
+
+  Villain:
+    type: object
+    description: A description of an enemy in the world space.
+    properties:
+      id:
+        type: string
+        description: Primary key that refers to this instance of this villan.
+      villainTemplateId:
+        type: string
+      stats:
+        $ref: '#/definitions/Stats'
+      attributes:
+        type: array
+        description: List of abilities this villan has.
+        items:
+          $ref: '#/definitions/Attribute'
+      location:
+        $ref: '#/definitions/Location'
+        description: Where in the world space
+
+  ItemPickup:
+    type: object
+    description: Stack of items that can be picked up in the world space
+    properties:
+      itemStack:
+        $ref: '#/definitions/ItemStack'
+      location:
+        $ref: '#/definitions/Location'
+
+  Room:
+    type: object
+    description: Properties of a room
+    properties:
+      id:
+        type: string
+        description: ID of the room
+      playerId:
+        type: string
+        description: Player that owns this room
+      weatherModifier:
+        type: string
+        description: >
+          How to modify the atmosphere of the room based on the weather of the player at time
+          it was created. This is used to add extra flavor/emotion to the game.
+      villans:
+        type: array
+        items:
+          $ref: '#/definitions/Villain'
+      pickups:
+        type: array
+        items:
+          $ref: '#/definitions/ItemPickup'
+      tiles:
+        type: array
+        items:
+          $ref: '#/definitions/Tile'
+          minimum: 10000
+          maximum: 10000 # TileXMaximum * TileYMaximum
+
+
+  Inventory:
+    type: object
+    properties:
+      id:
+        type: string
+        description: ID of this inventory
+      playerId:
+        type: string
+        description: Player that owns this inventory.
+      itemStacks:
+        type: array
+        items:
+          $ref: '#/definitions/ItemStack'
+
+  Login:
+    type: object
+    description: Data used to log in to an account
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+        minLength: 0
+        maxLength: 127
+
+  PlayerCreation:
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/Login'
+    properties:
+      locationName:
+        type: string
+        description: Name of the location the user is in
+
+  Player:
+    type: object
+    properties:
+      id:
+        type: string
+        description: ID of this player
+      username:
+        type: string
+        description: Username of the player
+      inventoryId:
+        type: string
+        description: ID of the player's inventory
+      roomId:
+        type: string
+        description: Room the player is in. Null if player is not in a room.
+      stats:
+        $ref: '#/definitions/Stats'
