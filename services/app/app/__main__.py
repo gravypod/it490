@@ -1,25 +1,15 @@
+from typing import Union, Optional
+
 import pika
-from example import config
+from app import config, queue
 
-connection = pika.BlockingConnection(pika.URLParameters(config.QUEUE_URL))
-channel = connection.channel()
-channel.queue_declare(queue='hello')
+server = queue.QueueServer(config.QUEUE_URL, config.QUEUE_TOPIC_APP)
 
 
-channel = connection.channel()
-
-channel.queue_declare(queue='hello')
-
-
-def callback(ch, method, properties, body):
-	print("Got Message:", body)
+@server.route('Player.create')
+def player_create(payload: dict, metadata: dict) -> Optional[Union[dict, list]]:
+    print('Within handler')
+    return {}
 
 
-channel.basic_consume(
-	queue='hello',
-	on_message_callback=callback,
-	auto_ack=True
-)
-
-channel.start_consuming()
-connection.close()
+server.start()

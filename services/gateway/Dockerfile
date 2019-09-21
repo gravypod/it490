@@ -13,4 +13,5 @@ ENV PYTHONPATH "${PYTHONPATH}:/code/"
 COPY gateway /code/gateway
 
 # Run module
+EXPOSE 80
 ENTRYPOINT ["python3", "-m", "gateway"]

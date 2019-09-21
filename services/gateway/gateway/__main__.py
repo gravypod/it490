@@ -1,20 +1,17 @@
-import pika
+from flask import Flask, request
+from waitress import serve
 from gateway import config
-from time import sleep
+from gateway.queue import QueueConnection
 
-connection = pika.BlockingConnection(pika.URLParameters(config.QUEUE_URL))
-channel = connection.channel()
-channel.queue_declare(queue='hello')
+app = Flask(__name__)
+
+rpc = QueueConnection(config.QUEUE_URL, config.QUEUE_TOPIC_APP)
 
 
-while True:
-	print("Sending message")
-	channel.basic_publish(
-		exchange='',
-		routing_key='hello',
-		body='Hello World!'
-	)
-	sleep(1)
+@app.route('/players', methods=['POST'])
+def player_create():
+    return rpc.send('Player.create', request.json)
 
-connection.close()
 
+rpc.start()
+serve(app, host='0.0.0.0', port=80)

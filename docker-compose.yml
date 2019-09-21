@@ -28,10 +28,12 @@ services:
     image: it490/gateway
     build: services/gateway
     restart: on-failure
+    environment:
+      VIRTUAL_HOST: gateway.it490.localhost
 
-  example:
-    image: it490/example
-    build: services/example
+  app:
+    image: it490/app
+    build: services/app
     restart: on-failure
 
 volumes:
