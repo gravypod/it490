@@ -2,7 +2,7 @@ from typing import Union, Optional, Tuple
 
 from app import config, queue
 from app.database import Database
-from app.models import PlayerCreation
+from app.models import PlayerCreation, Login
 
 server = queue.QueueServer(config.QUEUE_URL, config.QUEUE_TOPIC_APP)
 db = Database(config.DATABASE_URL)
@@ -18,6 +18,17 @@ def player_create(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[di
     )
     player = db.player_creation_insert(player_creation)
     return 200, player.to_dict()
+
+
+@server.route('Player.login')
+def player_login(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+    login = Login(
+        username=payload['username'],
+        password=payload['password']
+    )
+
+    db.player_login(login)
+    return 200, db.player_load(login.username).to_dict()
 
 
 server.start()

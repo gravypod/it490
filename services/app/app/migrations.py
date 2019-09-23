@@ -62,6 +62,7 @@ class PlayerCreationMigration(Migration):
         """)
         tx.commit()
 
+
 class MigrationManager:
     def __init__(self):
         self.migrations = [

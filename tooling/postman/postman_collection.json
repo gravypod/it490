@@ -1,0 +1,190 @@
+{
+	"info": {
+		"_postman_id": "31113f58-5611-4041-b20d-66ab59424f88",
+		"name": "IT490",
+		"description": "Project for the NJIT IT490 Systems Integration Class",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Player",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "36e135d9-ca5b-40c4-9a33-7a70fa920b0e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "57f5eaf1-41dd-4a41-bbf8-9689244c29ae",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.globals.set(\"player_username\", jsonData.username);",
+							"pm.globals.set(\"player_password\", 'user');",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"user{{$randomInt}}\",\n\t\"password\": \"user\",\n\t\"locationName\": \"07410\"\n}"
+				},
+				"url": {
+					"raw": "http://gateway.{{it490host}}/players",
+					"protocol": "http",
+					"host": [
+						"gateway",
+						"{{it490host}}"
+					],
+					"path": [
+						"players"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Player",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f173f2f2-c911-49a2-b86e-ce823f54aabd",
+						"exec": [
+							"pm.globals.set(\"player_token\", pm.response.text());",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"{{player_username}}\",\n\t\"password\": \"{{player_password}}\"\n}"
+				},
+				"url": {
+					"raw": "http://gateway.{{it490host}}/logins",
+					"protocol": "http",
+					"host": [
+						"gateway",
+						"{{it490host}}"
+					],
+					"path": [
+						"logins"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test Protected",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f173f2f2-c911-49a2-b86e-ce823f54aabd",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{player_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://gateway.{{it490host}}/protected",
+					"protocol": "http",
+					"host": [
+						"gateway",
+						"{{it490host}}"
+					],
+					"path": [
+						"protected"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "67804cfc-c3de-43f0-845f-6c524fa7ce4b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "9f751be3-95b4-4d49-a85c-f3aface9fa3e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "a3f79c57-ba57-4088-bb5b-eebe8a313ed0",
+			"key": "it490host",
+			"value": "it490.localhost",
+			"type": "string"
+		}
+	]
+}

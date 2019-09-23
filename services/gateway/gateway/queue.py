@@ -5,6 +5,8 @@ from multiprocessing import Process, Queue
 from threading import Thread
 from typing import Dict
 
+from flask_jwt_extended import get_jwt_claims
+
 import pika
 from flask import Response, jsonify
 from pika.adapters.blocking_connection import BlockingChannel
@@ -90,12 +92,19 @@ class QueueConnection(Process):
 
         return result
 
-    def send(self, method: str, payload: dict):
+    def send(self, method: str, payload: dict, make_jsonified: bool = True):
         response = self.__rpc({
             'method': method,
+            'user': get_jwt_claims(),
             'payload': payload
         })
-        return jsonify(response['body']), response['statusCode']
+
+        if make_jsonified:
+            body = jsonify(response['body'])
+        else:
+            body = response['body']
+
+        return body, response['statusCode']
 
     def run(self) -> None:
         print('Starting queue connection thread')

@@ -37,8 +37,9 @@ class QueueServer:
             message = json.loads(body.decode())
             print(message)
 
-            # Reserved for when auth is implemented.
-            metadata: dict = {}
+            metadata: dict = {
+                'user': message['user'] if 'user' in message else None
+            }
             payload: dict = message['payload']
 
             status_code, response = self.methods[message['method']](payload, metadata)

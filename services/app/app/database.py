@@ -6,14 +6,19 @@ from app.migrations import MigrationManager
 from app.models import PlayerCreation, Player, Login
 import hashlib
 import uuid
+from app.queue import ResponseException
 
 
-class UserAlreadyExistsException(Exception):
-    ...
+class UserAlreadyExistsException(ResponseException):
+    status_code = 400
 
 
-class UserDoesNotExistException(Exception):
-    ...
+class UserDoesNotExistException(ResponseException):
+    status_code = 400
+
+
+class IncorrectCredentialsProvided(ResponseException):
+    status_code = 400
 
 
 class PasswordTransformer:
@@ -52,7 +57,7 @@ class Database:
                     stats=None,  # TODO
                 )
 
-    def player_login(self, login: Login):
+    def player_login(self, login: Login) -> bool:
         """
         Check if a user's login information is valid
         :param login:
@@ -68,7 +73,7 @@ class Database:
             for password_salt, password_hash in results:
                 return PasswordTransformer.hash(login.password, password_salt) == password_hash
             else:
-                raise UserDoesNotExistException()
+                raise IncorrectCredentialsProvided()
 
     def player_creation_insert(self, player_creation: PlayerCreation) -> Player:
         with self.engine.connect() as connection:
