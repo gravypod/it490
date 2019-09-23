@@ -1,14 +1,13 @@
+import json
 import uuid
+from concurrent.futures import Future
 from multiprocessing import Process, Queue
 from threading import Thread
-from time import sleep
 from typing import Dict
 
 import pika
-import json
-
+from flask import Response, jsonify
 from pika.adapters.blocking_connection import BlockingChannel
-from concurrent.futures import Future
 
 
 class QueueConnection(Process):
@@ -91,11 +90,12 @@ class QueueConnection(Process):
 
         return result
 
-    def send(self, method: str, payload: dict) -> dict:
-        return self.__rpc({
+    def send(self, method: str, payload: dict):
+        response = self.__rpc({
             'method': method,
             'payload': payload
         })
+        return jsonify(response['body']), response['statusCode']
 
     def run(self) -> None:
         print('Starting queue connection thread')

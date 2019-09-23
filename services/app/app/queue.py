@@ -1,9 +1,13 @@
 import json
 from traceback import print_exc
-from typing import Dict, Callable, Optional, Union
+from typing import Dict, Callable, Optional, Union, Tuple
 
 import pika
 from pika.adapters.blocking_connection import BlockingChannel
+
+
+class ResponseException(Exception):
+    status_code: int = 500
 
 
 class QueueServer:
@@ -19,7 +23,7 @@ class QueueServer:
             auto_ack=False
         )
 
-        self.methods: Dict[str, Callable[[dict, dict], Optional[Union[dict, list]]]] = {}
+        self.methods: Dict[str, Callable[[dict, dict], Optional[Tuple[int, Union[dict, list]]]]] = {}
 
     def __on_request(
             self,
@@ -37,22 +41,29 @@ class QueueServer:
             metadata: dict = {}
             payload: dict = message['payload']
 
-            response = self.methods[message['method']](payload, metadata)
+            status_code, response = self.methods[message['method']](payload, metadata)
             print('Response', response)
 
-            channel.basic_publish(
-                exchange='',
-                routing_key=properties.reply_to,
-                properties=pika.BasicProperties(correlation_id=properties.correlation_id),
-                body=json.dumps(response)
-            )
-            channel.basic_ack(delivery_tag=method.delivery_tag)
-            print('Acked')
-        except:
+        except ResponseException as e:
             print_exc()
-            channel.basic_nack(delivery_tag=method.delivery_tag)
+            status_code, response = e.status_code, str(e)
+        except Exception as e:
+            print_exc()
+            status_code, response = 500, 'Internal Server Error: ' + str(e)
 
-    def register(self, method: str, handler: Callable[[dict, dict], Optional[Union[dict, list]]]):
+        channel.basic_publish(
+            exchange='',
+            routing_key=properties.reply_to,
+            properties=pika.BasicProperties(correlation_id=properties.correlation_id),
+            body=json.dumps({
+                'statusCode': status_code,
+                'body': response
+            })
+        )
+        channel.basic_ack(delivery_tag=method.delivery_tag)
+        print('Acked')
+
+    def register(self, method: str, handler: Callable[[dict, dict], Optional[Tuple[int, Union[dict, list]]]]):
         self.methods[method] = handler
 
     def start(self):
