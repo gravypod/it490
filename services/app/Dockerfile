@@ -9,7 +9,7 @@ RUN pip3 install -r /tmp/requirements.txt && \
 
 # Install module into container
 ENV PYTHONPATH "${PYTHONPATH}:/code/"
-COPY example /code/example
+COPY app /code/app
 
 # Run module
-ENTRYPOINT ["python3", "-m", "example"]
+ENTRYPOINT ["python3", "-m", "app"]
