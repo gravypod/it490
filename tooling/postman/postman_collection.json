@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "31113f58-5611-4041-b20d-66ab59424f88",
+		"_postman_id": "360c8ed6-a321-4dd7-b7cd-97396ab036f1",
 		"name": "IT490",
 		"description": "Project for the NJIT IT490 Systems Integration Class",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -26,7 +26,9 @@
 						"exec": [
 							"var jsonData = pm.response.json();",
 							"pm.globals.set(\"player_username\", jsonData.username);",
+							"pm.globals.set(\"player_id\", jsonData.id);",
 							"pm.globals.set(\"player_password\", 'user');",
+							"",
 							""
 						],
 						"type": "text/javascript"
@@ -56,6 +58,59 @@
 					],
 					"path": [
 						"players"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Player",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "36e135d9-ca5b-40c4-9a33-7a70fa920b0e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "57f5eaf1-41dd-4a41-bbf8-9689244c29ae",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://gateway.{{it490host}}/players/{{player_id}}",
+					"protocol": "http",
+					"host": [
+						"gateway",
+						"{{it490host}}"
+					],
+					"path": [
+						"players",
+						"{{player_id}}"
 					]
 				}
 			},

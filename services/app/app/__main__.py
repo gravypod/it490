@@ -40,5 +40,13 @@ def villain_template_create(payload: dict, metadata: dict) -> Optional[Tuple[int
     villain_template = db.villain_template_create(villain_template)
     return 200, villain_template.to_dict()
 
+@server.route('Player.get')
+def player_get(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+    player = db.player_load(
+        username=payload['username'] if 'username' in payload else None,
+        player_id=payload['playerId'] if 'playerId' in payload else None
+    )
+    return 200, player.to_dict()
+
 
 server.start()

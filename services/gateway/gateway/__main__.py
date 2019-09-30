@@ -31,6 +31,13 @@ def player_create():
     return rpc.send('Player.create', request.json)
 
 
+@app.route('/players/<player_id>')
+def player_get(player_id: str):
+    return rpc.send('Player.get', {
+        'playerId': int(player_id)
+    })
+
+
 @app.route('/protected', methods=['GET'])
 @jwt_required
 def protected_example():
