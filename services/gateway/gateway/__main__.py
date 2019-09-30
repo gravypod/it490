@@ -34,7 +34,10 @@ def player_create():
 @app.route('/protected', methods=['GET'])
 @jwt_required
 def protected_example():
-    return 'hello world', 200
+    return rpc.send('VillainTemplate.create', {
+        'name': 'Hello World',
+        'faceImageUrl': 'http://example.com/image2.png'
+    })
 
 
 rpc.start()
