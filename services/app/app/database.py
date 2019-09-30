@@ -44,7 +44,7 @@ class Database:
             if username is not None:
                 rs = connection.execute("select * from players where players.username = %s", (username,))
             elif player_id is not None:
-                rs = connection.execute("select * from players where players.id = :id", (player_id,))
+                rs = connection.execute("select * from players where players.id = %s", (str(player_id),))
             else:
                 raise Exception('Provide either username or player_id')
 
