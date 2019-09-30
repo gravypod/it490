@@ -63,6 +63,24 @@ class PlayerCreationMigration(Migration):
         tx.commit()
 
 
+class VillainTemplateMigration(Migration):
+    version = 2
+
+    def upgrade(self, connection: Connection):
+        tx = connection.begin()
+        connection.execute("""create table villain_templates(
+                id int not null auto_increment,
+                name text not null,
+                face_image_url text not null,
+                primary key (id)
+            );""")
+        connection.execute("""
+            alter table villain_templates
+            add unique index `villain_template_name_idx` (`name`);
+        """)
+        tx.commit()
+
+
 class MigrationManager:
     def __init__(self):
         self.migrations = [

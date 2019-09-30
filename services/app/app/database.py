@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy import create_engine
 
 from app.migrations import MigrationManager
-from app.models import PlayerCreation, Player, Login
+from app.models import PlayerCreation, Player, Login, VillainTemplate
 import hashlib
 import uuid
 from app.queue import ResponseException
@@ -92,3 +92,24 @@ class Database:
             """, (player_creation.username, password_salt, password_hash, player_creation.location_name))
 
         return self.player_load(username=player_creation.username)
+
+    def villain_template_create(self, villain_template: VillainTemplate) -> VillainTemplate:
+        with self.engine.connect() as connection:
+            connection.execute("""
+                INSERT INTO villain_templates(`name`, `face_image_url`)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE
+                    `face_image_url` = %s;
+            """, (villain_template.name, villain_template.face_image_url, villain_template.face_image_url))
+
+            results = connection.execute("""
+                SELECT *
+                FROM villain_templates
+                WHERE `villain_templates`.`name` = %s;
+            """, (villain_template.name,))
+            for result in results:
+                return VillainTemplate(
+                    id=result['id'],
+                    name=result['name'],
+                    face_image_url=result['face_image_url']
+                )

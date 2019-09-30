@@ -2,7 +2,7 @@ from typing import Union, Optional, Tuple
 
 from app import config, queue
 from app.database import Database
-from app.models import PlayerCreation, Login
+from app.models import PlayerCreation, Login, VillainTemplate
 
 server = queue.QueueServer(config.QUEUE_URL, config.QUEUE_TOPIC_APP)
 db = Database(config.DATABASE_URL)
@@ -30,6 +30,15 @@ def player_login(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dic
     db.player_login(login)
     return 200, db.player_load(login.username).to_dict()
 
+
+@server.route('VillainTemplate.create')
+def villain_template_create(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+    villain_template = VillainTemplate(
+        name=payload['name'],
+        face_image_url=payload['faceImageUrl']
+    )
+    villain_template = db.villain_template_create(villain_template)
+    return 200, villain_template.to_dict()
 
 @server.route('Player.get')
 def player_get(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
