@@ -52,15 +52,18 @@ class QueueServer:
             print_exc()
             status_code, response = 500, 'Internal Server Error: ' + str(e)
 
-        channel.basic_publish(
-            exchange='',
-            routing_key=properties.reply_to,
-            properties=pika.BasicProperties(correlation_id=properties.correlation_id),
-            body=json.dumps({
-                'statusCode': status_code,
-                'body': response
-            })
-        )
+        if properties.reply_to:
+            channel.basic_publish(
+                exchange='',
+                routing_key=properties.reply_to,
+                properties=pika.BasicProperties(correlation_id=properties.correlation_id),
+                body=json.dumps({
+                    'statusCode': status_code,
+                    'body': response
+                })
+            )
+        else:
+            print('Async, one way, message handled')
         channel.basic_ack(delivery_tag=method.delivery_tag)
         print('Acked')
 

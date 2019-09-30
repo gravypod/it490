@@ -34,6 +34,11 @@ services:
     build: services/app
     restart: on-failure
 
+  imdbscraper:
+    image: it490/imdbscraper
+    build: services/imdbscraper
+    restart: on-failure
+
   mysql:
     image: mariadb:10.4.8-bionic
     restart: on-failure
