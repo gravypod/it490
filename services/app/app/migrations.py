@@ -81,6 +81,26 @@ class VillainTemplateMigration(Migration):
         tx.commit()
 
 
+class WeatherMigration(Migration):
+    version = 3
+
+    def upgrade(self, connection: Connection):
+        tx = connection.begin()
+        connection.execute("""create table weathers(
+                `id` int not null auto_increment,
+                `location` text not null,
+                `temperature` float not null,
+                `phrase` text not null,
+                `on` datetime not null,
+                primary key (id)
+            );""")
+        # connection.execute("""
+        #     alter table weathers
+        #     add unique index `weathers_daily_idx` (`name`, `location`, `on`);
+        # """)
+        tx.commit()
+
+
 class MigrationManager:
     def __init__(self):
         self.migrations = [

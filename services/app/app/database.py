@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from typing import Optional
 
 from sqlalchemy import create_engine
@@ -6,6 +7,8 @@ from app.migrations import MigrationManager
 from app.models import PlayerCreation, Player, Login, VillainTemplate
 import hashlib
 import uuid
+
+from app.models.weather import Weather
 from app.queue import ResponseException
 
 
@@ -113,3 +116,27 @@ class Database:
                     name=result['name'],
                     face_image_url=result['face_image_url']
                 )
+
+    def weather_get(self, location: str, on: datetime) -> Optional[Weather]:
+        with self.engine.connect() as connection:
+            results = connection.execute("""
+                select * from weathers
+                where location = %s and DATE(`on`) = DATE(%s)
+            """, (location, on.isoformat()))
+            for result in results:
+                return Weather(
+                    id=result['id'],
+                    location=result['location'],
+                    temperature=float(result['temperature']),
+                    phrase=result['phrase'],
+                    on=result['on']
+                )
+        return None
+
+    def weather_set(self, weather: Weather) -> Optional[Weather]:
+        with self.engine.connect() as connection:
+            connection.execute("""
+                insert into weathers(`location`, `temperature`, `phrase`, `on`)
+                values (%s, %s, %s, %s)
+            """, (weather.location, weather.temperature, weather.phrase, weather.on.isoformat()))
+        return self.weather_get(weather.location, weather.on)

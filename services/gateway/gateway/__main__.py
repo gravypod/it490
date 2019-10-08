@@ -38,6 +38,14 @@ def player_get(player_id: str):
     })
 
 
+@app.route('/weather/<location_name>')
+@jwt_required
+def weather_get(location_name: str):
+    return rpc.send('Weather.get', {
+        'locationName': location_name
+    })
+
+
 @app.route('/protected', methods=['GET'])
 @jwt_required
 def protected_example():

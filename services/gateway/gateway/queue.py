@@ -32,7 +32,7 @@ class QueueConnection(Process):
         self.channel.basic_consume(
             queue=self.response_queue,
             on_message_callback=self.__on_response,
-            auto_ack=True
+            auto_ack=True,
         )
 
         self.resulting_messages = Queue()
