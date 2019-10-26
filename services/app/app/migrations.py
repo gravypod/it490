@@ -100,7 +100,20 @@ class WeatherMigration(Migration):
         # """)
         tx.commit()
 
-
+class NickMigration(Migration):
+    version = 4
+    
+    def upgrade(self, connection: Connection):
+        tx = connection.begin()
+        connection.execute("""create table playerInfo(
+            `id` text not null,
+            `username` text not null,
+            `inventory_id` text not null,
+            `room_id` text not null,
+            primary key(id)
+        );""" #Not sure what datatype to make stats. Make a new object type???
+        tx.commit()
+        
 class MigrationManager:
     def __init__(self):
         self.migrations = [
