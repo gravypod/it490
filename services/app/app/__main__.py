@@ -9,7 +9,7 @@ from app.models.weather import Weather
 server = queue.QueueServer(config.QUEUE_URL, config.QUEUE_TOPIC_APP)
 db = Database(config.DATABASE_URL)
 weather_scraper_client = queue.QueueClient(config.QUEUE_URL, config.QUEUE_TOPIC_WEATHER)
-weather_scraper_client.start()
+
 
 @server.route('Player.create')
 def player_create(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
