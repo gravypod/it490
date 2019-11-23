@@ -82,4 +82,24 @@ def weather_get(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict
     return 200, weather.to_dict()
 
 
+@server.route('Todo.list')
+def todos_list(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+    todo_list = db.todo_list(int(metadata['user']['id']))
+    return 200, [todo.to_dict() for todo in todo_list]
+
+
+@server.route('Todo.delete')
+def todos_delete(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+    if db.todo_delete(payload['todoId'], int(metadata['user']['id'])):
+        return 200, {}
+    else:
+        return 404, {}
+
+
+@server.route('Todo.create')
+def todos_create(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+    todo = db.todo_create(payload['text'], int(metadata['user']['id']))
+    return 200, todo.to_dict()
+
+
 server.start()

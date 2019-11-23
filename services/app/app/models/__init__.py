@@ -13,3 +13,5 @@ from app.models.stats import Stats
 from app.models.tile import Tile
 from app.models.villain import Villain
 from app.models.villain_template import VillainTemplate
+from app.models.todo import Todo
+

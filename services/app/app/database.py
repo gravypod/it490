@@ -1,10 +1,11 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine import ResultProxy
 
 from app.migrations import MigrationManager
-from app.models import PlayerCreation, Player, Login, VillainTemplate
+from app.models import PlayerCreation, Player, Login, VillainTemplate, Todo
 import hashlib
 import uuid
 
@@ -95,6 +96,41 @@ class Database:
             """, (player_creation.username, password_salt, password_hash, player_creation.location_name))
 
         return self.player_load(username=player_creation.username)
+
+    def todo_create(self, text: str, owner: int) -> Todo:
+        with self.engine.connect() as connection:
+            connection.execute("""
+                insert into todos(`text`, `owner`)
+                values (%s, %s);
+            """, (text, owner))
+
+            for result in connection.execute("SELECT last_insert_id() as `id`;"):
+                return Todo(
+                id=result['id'],
+                text=text,
+                owner=owner
+            )
+
+    def todo_list(self, owner: int) -> List[Todo]:
+        todos = []
+        with self.engine.connect() as connection:
+            results = connection.execute("SELECT * FROM todos WHERE owner = %s;", (owner,))
+            for result in results:
+                todos.append(Todo(
+                    id=result['id'],
+                    text=result['text'].decode(),
+                    owner=result['owner'],
+                ))
+        return todos
+
+    def todo_delete(self, todo_id: int, owner: int) -> bool:
+
+        with self.engine.connect() as connection:
+            results: ResultProxy = connection.execute(
+                "DELETE FROM todos WHERE owner = %s AND id = %s;",
+                (owner, todo_id)
+            )
+            return results.rowcount != 0
 
     def villain_template_create(self, villain_template: VillainTemplate) -> VillainTemplate:
         with self.engine.connect() as connection:

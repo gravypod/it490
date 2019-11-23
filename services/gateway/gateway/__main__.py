@@ -55,4 +55,24 @@ def protected_example():
     })
 
 
+@app.route('/todos', methods=['POST'])
+@jwt_required
+def todo_create():
+    return rpc.send('Todo.create', request.json)
+
+
+@app.route('/todos', methods=['GET'])
+@jwt_required
+def todo_list():
+    return rpc.send('Todo.list', {})
+
+
+@app.route('/todos/<todo_id>', methods=['DELETE'])
+@jwt_required
+def todo_delete(todo_id: str):
+    return rpc.send('Todo.delete', {
+        'todoId': todo_id
+    })
+
+
 serve(app, host='0.0.0.0', port=80)

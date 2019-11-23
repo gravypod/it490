@@ -101,6 +101,21 @@ class WeatherMigration(Migration):
         tx.commit()
 
 
+class TodoMigration(Migration):
+    version = 4
+
+    def upgrade(self, connection: Connection):
+        tx = connection.begin()
+        connection.execute("""CREATE TABLE todos (
+                                  `id` INT AUTO_INCREMENT PRIMARY KEY,
+                                  `text` BLOB,
+                                  `owner` INT NOT NULL,
+                                  FOREIGN KEY (`owner`) REFERENCES players(`id`)
+                              );""")
+        connection.execute("CREATE INDEX idx_owner ON todos(`owner`);")
+        tx.commit()
+
+
 class MigrationManager:
     def __init__(self):
         self.migrations = [

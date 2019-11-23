@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "360c8ed6-a321-4dd7-b7cd-97396ab036f1",
+		"_postman_id": "4c8e41f6-177b-479a-87ad-c914db286b6c",
 		"name": "IT490",
 		"description": "Project for the NJIT IT490 Systems Integration Class",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -97,10 +97,6 @@
 						"value": "application/json"
 					}
 				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
 				"url": {
 					"raw": "http://gateway.{{it490host}}/players/{{player_id}}",
 					"protocol": "http",
@@ -193,10 +189,6 @@
 						"value": "application/json"
 					}
 				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
 				"url": {
 					"raw": "http://gateway.{{it490host}}/protected",
 					"protocol": "http",
@@ -206,6 +198,191 @@
 					],
 					"path": [
 						"protected"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Weather",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{player_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://gateway.{{it490host}}/weather/07017",
+					"protocol": "http",
+					"host": [
+						"gateway",
+						"{{it490host}}"
+					],
+					"path": [
+						"weather",
+						"07017"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Todo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f173f2f2-c911-49a2-b86e-ce823f54aabd",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{player_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"text\": \"Hello World\"\n}"
+				},
+				"url": {
+					"raw": "http://gateway.{{it490host}}/todos",
+					"protocol": "http",
+					"host": [
+						"gateway",
+						"{{it490host}}"
+					],
+					"path": [
+						"todos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Todo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f173f2f2-c911-49a2-b86e-ce823f54aabd",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.globals.set(\"oldest_todo_id\", jsonData[0].id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{player_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://gateway.{{it490host}}/todos",
+					"protocol": "http",
+					"host": [
+						"gateway",
+						"{{it490host}}"
+					],
+					"path": [
+						"todos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Todo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f173f2f2-c911-49a2-b86e-ce823f54aabd",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{player_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"text\": \"Hello World\"\n}"
+				},
+				"url": {
+					"raw": "http://gateway.{{it490host}}/todos/{{oldest_todo_id}}",
+					"protocol": "http",
+					"host": [
+						"gateway",
+						"{{it490host}}"
+					],
+					"path": [
+						"todos",
+						"{{oldest_todo_id}}"
 					]
 				}
 			},
@@ -241,5 +418,6 @@
 			"value": "it490.localhost",
 			"type": "string"
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
