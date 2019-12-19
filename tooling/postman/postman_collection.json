@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "360c8ed6-a321-4dd7-b7cd-97396ab036f1",
+		"_postman_id": "2363e03b-df18-4108-ae1c-f2e5170fe119",
 		"name": "IT490",
 		"description": "Project for the NJIT IT490 Systems Integration Class",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -28,6 +28,7 @@
 							"pm.globals.set(\"player_username\", jsonData.username);",
 							"pm.globals.set(\"player_id\", jsonData.id);",
 							"pm.globals.set(\"player_password\", 'user');",
+							"pm.globals.set(\"inventory_id\", jsonData.inventory_id)",
 							"",
 							""
 						],
@@ -50,11 +51,10 @@
 					"raw": "{\n\t\"username\": \"user{{$randomInt}}\",\n\t\"password\": \"user\",\n\t\"locationName\": \"07410\"\n}"
 				},
 				"url": {
-					"raw": "http://gateway.{{it490host}}/players",
+					"raw": "http://gateway{{it490host}}/players",
 					"protocol": "http",
 					"host": [
-						"gateway",
-						"{{it490host}}"
+						"gateway{{it490host}}"
 					],
 					"path": [
 						"players"
@@ -97,16 +97,11 @@
 						"value": "application/json"
 					}
 				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
 				"url": {
-					"raw": "http://gateway.{{it490host}}/players/{{player_id}}",
+					"raw": "http://gateway{{it490host}}/players/{{player_id}}",
 					"protocol": "http",
 					"host": [
-						"gateway",
-						"{{it490host}}"
+						"gateway{{it490host}}"
 					],
 					"path": [
 						"players",
@@ -146,11 +141,10 @@
 					"raw": "{\n\t\"username\": \"{{player_username}}\",\n\t\"password\": \"{{player_password}}\"\n}"
 				},
 				"url": {
-					"raw": "http://gateway.{{it490host}}/logins",
+					"raw": "http://gateway{{it490host}}/logins",
 					"protocol": "http",
 					"host": [
-						"gateway",
-						"{{it490host}}"
+						"gateway{{it490host}}"
 					],
 					"path": [
 						"logins"
@@ -193,19 +187,107 @@
 						"value": "application/json"
 					}
 				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
 				"url": {
-					"raw": "http://gateway.{{it490host}}/protected",
+					"raw": "http://gateway{{it490host}}/protected",
 					"protocol": "http",
 					"host": [
-						"gateway",
-						"{{it490host}}"
+						"gateway{{it490host}}"
 					],
 					"path": [
 						"protected"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Inventory",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cb699aa7-5686-4664-b409-add2e5f70324",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{player_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://gateway{{it490host}}/inventories/{{inventory_id}}",
+					"protocol": "http",
+					"host": [
+						"gateway{{it490host}}"
+					],
+					"path": [
+						"inventories",
+						"{{inventory_id}}"
+					]
+				},
+				"description": "Returns player inventory"
+			},
+			"response": []
+		},
+		{
+			"name": "Put Inventory",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "224e6da4-b97a-4cd1-961d-62e9f4c39459",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{player_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"inventory_id\": \"{{inventory_id}}\",\r\n  \"playerId\": \"{{player_id}}\",\r\n  \"itemStacks\": [\r\n    {\r\n      \"item\": \"potion\",\r\n      \"quantity\": 3\r\n    }\r\n  ]\r\n}"
+				},
+				"url": {
+					"raw": "http://gateway{{it490host}}/inventories/{{inventory_id}}",
+					"protocol": "http",
+					"host": [
+						"gateway{{it490host}}"
+					],
+					"path": [
+						"inventories",
+						"{{inventory_id}}"
 					]
 				}
 			},
@@ -236,10 +318,11 @@
 	],
 	"variable": [
 		{
-			"id": "a3f79c57-ba57-4088-bb5b-eebe8a313ed0",
+			"id": "05bf6491-3f2a-4d7e-a2a2-6bf741bf5ef2",
 			"key": "it490host",
 			"value": "it490.localhost",
 			"type": "string"
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
