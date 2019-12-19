@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy import create_engine
 
 from app.migrations import MigrationManager
-from app.models import PlayerCreation, Player, Login, VillainTemplate
+from app.models import PlayerCreation, Player, Login, VillainTemplate, Inventory, ItemStack
 import hashlib
 import uuid
 
@@ -50,12 +50,20 @@ class Database:
                 rs = connection.execute("select * from players where players.id = %s", (str(player_id),))
             else:
                 raise Exception('Provide either username or player_id')
-
+            """
+            if username is not None:
+                inventory = connection.execute("select id from inventory where inventory.playerId = %s", (str(player_id)))
+            else:
+                raise Exception('Inventory could not be loaded. Provide Username')
+          
+            for result in inventory:
+                inv = result['id']
+            """
             for player in rs:
                 return Player(
                     id=player['id'],
                     username=player['username'],
-                    inventory_id=None,  # TODO
+                    inventory_id="1111", 
                     room_id=None,  # TODO
                     stats=None,  # TODO
                 )
@@ -90,9 +98,17 @@ class Database:
             password_salt = PasswordTransformer.salt()
             password_hash = PasswordTransformer.hash(player_creation.password, password_salt)
             connection.execute("""
-                insert into players(username, password_salt, password_hash, location_name)
-                value (%s, %s, %s, %s);
+                INSERT INTO players(username, password_salt, password_hash, location_name)
+                VALUES (%s, %s, %s, %s);
             """, (player_creation.username, password_salt, password_hash, player_creation.location_name))
+
+            """
+            connection.execute(
+                INSERT INTO inventory (playerUsername)
+                VALUES (%s);
+                , (player_creation.username))
+                """
+
 
         return self.player_load(username=player_creation.username)
 
@@ -140,3 +156,31 @@ class Database:
                 values (%s, %s, %s, %s)
             """, (weather.location, weather.temperature, weather.phrase, weather.on.isoformat()))
         return self.weather_get(weather.location, weather.on)
+
+    def inventory_get(self, inventory_id: Optional[int] = None, player: Optional[int] = None):
+        with self.engine.connect() as connection:
+            if inventory_id is not None:
+                rs = connection.execute("select * from inventory where inventory.inventory_id = %s", (str(inventory_id)))
+            else:
+                raise Exception('Provide inventory_id')
+            
+            items = []
+
+            for inventory in rs:
+                items.append(ItemStack(inventory['item'], inventory['quantity']))
+                player = inventory['player_id']
+
+            return Inventory(
+                 id = inventory_id,
+                 player_id = player,
+                 item_stacks = items
+                 )
+
+    def inventory_put(self, inventory: Inventory = None):
+        with self.engine.connect() as connection:
+            if inventory_id is not None:
+                connection.execute("delete from inventory where inventory.inventory_id = %s", (str(inventory.id)))
+                for item in itemStacks:
+                    connection.execute("insert into inventory (inventory_id, player_id, item, quantity) values (%s, %s, %s, %s)", (inventory.id, inventory.player_id, item.item, item.quantity))
+            else:
+                raise Exception('Provide inventory_id')

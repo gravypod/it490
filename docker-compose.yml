@@ -14,7 +14,7 @@ services:
     volumes:
       - rabbitmq:/var/lib/rabbitmq
     environment:
-      VIRTUAL_HOST: rabbitmq.it490.localhost
+      VIRTUAL_HOST: rabbitmq.local
       VIRTUAL_PORT: 15672
 
   gateway:
@@ -22,7 +22,7 @@ services:
     build: services/gateway
     restart: on-failure
     environment:
-      VIRTUAL_HOST: gateway.it490.localhost
+      VIRTUAL_HOST: gateway.local
 
   app:
     image: it490/app
