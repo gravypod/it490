@@ -55,5 +55,18 @@ def protected_example():
     })
 
 
+@app.route('/inventories/<inventory_id>')
+@jwt_required
+def inventory_get(inventory_id: str):
+    return rpc.send('Inventory.get', {
+        'inventory_id': int(inventory_id)
+    })
+
+@app.route('/inventories/<inventory_id>', methods=['PUT'])
+@jwt_required
+def inventory_put():
+    return rpc.send('Inventory.put', request.json)
+
+
 rpc.start()
 serve(app, host='0.0.0.0', port=80)

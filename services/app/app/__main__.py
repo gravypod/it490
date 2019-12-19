@@ -3,7 +3,7 @@ from typing import Union, Optional, Tuple
 
 from app import config, queue
 from app.database import Database
-from app.models import PlayerCreation, Login, VillainTemplate
+from app.models import PlayerCreation, Login, VillainTemplate, Inventory, ItemStack
 from app.models.weather import Weather
 
 server = queue.QueueServer(config.QUEUE_URL, config.QUEUE_TOPIC_APP)
@@ -80,6 +80,26 @@ def weather_get(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict
         return 500, {'message': 'Failed to fetch weather from cache'}
 
     return 200, weather.to_dict()
+
+
+@server.route('Inventory.get')
+def inventory_get(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+    inventory = db.inventory_get(
+        inventory_id = payload['inventory_id'] if 'inventory_id' in payload else None,
+    )
+    return 200, inventory.to_dict()
+
+
+@server.route('Inventory.put')
+def inventory_get(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+    inventory = db.inventory_put(
+        Inventory(
+            id = payload['inventory_id'] if 'inventory_id' in payload else None,
+            player_id = payload['playerId'] if 'playerId' in payload else None,
+            item_stacks = payload['itemStacks'] if 'itemStacks' in payload else None,
+            )
+    )
+    return 200, inventory.to_dict()
 
 
 server.start()

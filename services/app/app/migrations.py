@@ -101,6 +101,24 @@ class WeatherMigration(Migration):
         tx.commit()
 
 
+class InventoryMigration(Migration):
+    version = 4
+
+    def upgrade(self, connection: Connection):
+        tx = connection.begin()
+        connection.execute("""create table inventory(
+                `id` int not null auto_increment,
+                `inventory_id` int not null,
+                `player_id` int not null,
+                `item` text,
+                `quantity` int,
+                primary key (id)
+            );""")
+
+        tx.commit()
+
+
+
 class MigrationManager:
     def __init__(self):
         self.migrations = [
