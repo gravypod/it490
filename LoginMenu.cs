@@ -11,6 +11,11 @@ public class LoginMenu : MonoBehaviour
     public Button login, createAccount, move;
     public GameObject loginPanel;
 
+    [HideInInspector]
+    public PlayerController.Player player;
+
+    
+
     struct Login
     {
         public string username;
@@ -101,17 +106,27 @@ public class LoginMenu : MonoBehaviour
 
 
         WWWForm dataForm = new WWWForm();
+       
 
         dataForm.AddField("login", loginInfoStr);
 
-        using (UnityWebRequest send = UnityWebRequest.Post("rabbitmq.it490.localhost ", dataForm))
+        using (UnityWebRequest send = UnityWebRequest.Post("gateway.it490.localhost/logins", dataForm))
         {
+            DownloadHandler download = send.downloadHandler;
             yield return send.SendWebRequest();
 
             if (send.isNetworkError || send.isHttpError)
                 Debug.Log(send.error);
             else
-                StartCoroutine(LoadData());
+            {
+                if (download.isDone)
+                {
+                    string tempStr = download.text;
+
+                    player = JsonUtility.FromJson<PlayerController.Player>(tempStr);
+                    //StartCoroutine(LoadData());
+                }
+            }
         }
     }
 
@@ -131,40 +146,50 @@ public class LoginMenu : MonoBehaviour
 
         dataForm.AddField("create", createInfoStr);
 
-        using (UnityWebRequest send = UnityWebRequest.Post("rabbitmq.it490.localhost ", dataForm))
+        using (UnityWebRequest send = UnityWebRequest.Post("gateway.it490.localhost/players", dataForm))
         {
+            DownloadHandler download = send.downloadHandler;
             yield return send.SendWebRequest();
 
             if (send.isNetworkError || send.isHttpError)
                 Debug.Log(send.error);
             else
-                StartCoroutine(LoadData());
+            {
+                if (download.isDone)
+                {
+                    string tempStr = download.text;
+                    
+                    player = JsonUtility.FromJson<PlayerController.Player>(tempStr);
+                    //StartCoroutine(LoadData());
+                }
+            }
+                //StartCoroutine(LoadData());
         }
     }
 
-   IEnumerator LoadData()
-    {
-        string playerData;
-        HideLoginMenu();
+   //IEnumerator LoadData()
+   // {
+   //     string playerData;
+   //     HideLoginMenu();
 
-        using (UnityWebRequest getter = UnityWebRequest.Get("rabbitmq.it490.localhost/player_login"))
-        {
-            yield return getter.SendWebRequest();
+   //     using (UnityWebRequest getter = UnityWebRequest.Get("gateway.it490.localhost/player_login"))
+   //     {
+   //         yield return getter.SendWebRequest();
 
-            if (getter.isNetworkError || getter.isHttpError)
-            {
-                Debug.Log(getter.error);
+   //         if (getter.isNetworkError || getter.isHttpError)
+   //         {
+   //             Debug.Log(getter.error);
 
-            }
-            else
-            {
-                playerData = getter.downloadHandler.text;
-                PlayerController.Player player = new PlayerController.Player();
-                player = JsonUtility.FromJson<PlayerController.Player>(playerData);
-            }
-        }
+   //         }
+   //         else
+   //         {
+   //             playerData = getter.downloadHandler.text;
+   //             PlayerController.Player player = new PlayerController.Player();
+   //             player = JsonUtility.FromJson<PlayerController.Player>(playerData);
+   //         }
+   //     }
                 
-    }
+   // }
     
 
 }
