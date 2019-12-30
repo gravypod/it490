@@ -64,7 +64,7 @@ def inventory_get(inventory_id: str):
 
 @app.route('/inventories/<inventory_id>', methods=['PUT'])
 @jwt_required
-def inventory_put():
+def inventory_put(inventory_id: str):
     return rpc.send('Inventory.put', request.json)
 
 

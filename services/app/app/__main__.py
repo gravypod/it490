@@ -91,10 +91,10 @@ def inventory_get(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[di
 
 
 @server.route('Inventory.put')
-def inventory_get(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
+def inventory_put(payload: dict, metadata: dict) -> Optional[Tuple[int, Union[dict, list]]]:
     inventory = db.inventory_put(
         Inventory(
-            id = payload['inventory_id'] if 'inventory_id' in payload else None,
+            id = payload['id'] if 'id' in payload else None,
             player_id = payload['playerId'] if 'playerId' in payload else None,
             item_stacks = payload['itemStacks'] if 'itemStacks' in payload else None,
             )

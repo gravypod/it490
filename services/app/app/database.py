@@ -11,6 +11,8 @@ import uuid
 from app.models.weather import Weather
 from app.queue import ResponseException
 
+import random
+
 
 class UserAlreadyExistsException(ResponseException):
     status_code = 400
@@ -50,20 +52,11 @@ class Database:
                 rs = connection.execute("select * from players where players.id = %s", (str(player_id),))
             else:
                 raise Exception('Provide either username or player_id')
-            """
-            if username is not None:
-                inventory = connection.execute("select id from inventory where inventory.playerId = %s", (str(player_id)))
-            else:
-                raise Exception('Inventory could not be loaded. Provide Username')
-          
-            for result in inventory:
-                inv = result['id']
-            """
             for player in rs:
                 return Player(
                     id=player['id'],
                     username=player['username'],
-                    inventory_id="1111", 
+                    inventory_id=random.randint(1000,9999), 
                     room_id=None,  # TODO
                     stats=None,  # TODO
                 )
@@ -101,13 +94,6 @@ class Database:
                 INSERT INTO players(username, password_salt, password_hash, location_name)
                 VALUES (%s, %s, %s, %s);
             """, (player_creation.username, password_salt, password_hash, player_creation.location_name))
-
-            """
-            connection.execute(
-                INSERT INTO inventory (playerUsername)
-                VALUES (%s);
-                , (player_creation.username))
-                """
 
 
         return self.player_load(username=player_creation.username)
@@ -178,9 +164,10 @@ class Database:
 
     def inventory_put(self, inventory: Inventory = None):
         with self.engine.connect() as connection:
-            if inventory_id is not None:
+            if inventory.id is not None:
                 connection.execute("delete from inventory where inventory.inventory_id = %s", (str(inventory.id)))
-                for item in itemStacks:
-                    connection.execute("insert into inventory (inventory_id, player_id, item, quantity) values (%s, %s, %s, %s)", (inventory.id, inventory.player_id, item.item, item.quantity))
+                for item in inventory.item_stacks:
+                    connection.execute("insert into inventory (inventory_id, player_id, item, quantity) values (%s, %s, %s, %s)", (inventory.id, inventory.player_id, item['item'], item['quantity']))
+                return inventory
             else:
                 raise Exception('Provide inventory_id')
